@@ -87,37 +87,64 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
    
     closed = []
     fringe = util.Stack()
     currentState = problem.getStartState()
-    fringe.push((currentState, None, 0))
-    
-    def dfs(currentState, route):
-        
-        print "currentState!!!!", currentState
-
+    levelNum = 0 
+    fringe.push((levelNum,(currentState, None, 0)))
+    route = []    #[(level #, dir)]
+    while not fringe.isEmpty():
+        currentStateCap = fringe.pop()
+        currentState = currentStateCap[1]
+        currentStateLevel = currentStateCap[0]
         if problem.isGoalState(currentState[0]):
-                return route
-        if currentState not in closed:
-            closed.append(currentState)
+            rtn = [d for (l, d) in route if d is not None] + [currentState[1]]
+            return rtn
+        if levelNum > currentStateLevel:
+            route = [(l, d) for (l , d) in route if l < currentStateLevel]
+        
+        if currentState[0] not in closed:
+            closed.append(currentState[0])
+            levelNum = currentStateLevel + 1
+            route += [(currentStateLevel, currentState[1])]
             for child_state in problem.getSuccessors(currentState[0]):
-                fringe.push(child_state)
-                dfs(child_state, route = route + [child_state[1]])
-
-        return []
-    rtn = dfs(fringe.pop(), [])
-    print rtn
-    return rtn
+                fringe.push((levelNum, child_state))
+    return []
     
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    closed = []
+    fringe = util.Queue()
+    currentState = problem.getStartState()
+    levelNum = 0 
+    fringe.push((levelNum,(currentState, None, 0)))
+    route = []    #[(level #, dir)]
+    while not fringe.isEmpty():
+        currentStateCap = fringe.pop()
+        currentState = currentStateCap[1]
+        currentStateLevel = currentStateCap[0]
+        if problem.isGoalState(currentState[0]):
+            rtn = [d for (l, d) in route if d is not None] + [currentState[1]]
+            print rtn
+            return rtn
+        if levelNum > currentStateLevel:
+            print "Change: levelNum, CurrentStateLevel", levelNum, currentStateLevel
+            route = [(l, d) for (l , d) in route if l < currentStateLevel]
+            print "route", route, "\n"
+        
+        if currentState[0] not in closed:
+            closed.append(currentState[0])
+            levelNum = currentStateLevel + 1
+            route += [(currentStateLevel, currentState[1])]
+            print "currentState, levelNum", currentState, levelNum
+            print "route!!", route
+            print "\n"
+            for child_state in problem.getSuccessors(currentState[0]):
+                fringe.push((levelNum, child_state))
+    return []
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
