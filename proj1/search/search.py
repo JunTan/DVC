@@ -112,12 +112,6 @@ def depthFirstSearch(problem):
                 fringe.push((levelNum, child_state))
     return []
     
-
-def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
 def getPath(node):
     path = []
     nextNode = node
@@ -125,6 +119,35 @@ def getPath(node):
         path = [nextNode[0][1]] + path
         nextNode = nextNode[1]
     return path
+
+def breadthFirstSearch(problem):
+    """Search the shallowest nodes in the search tree first."""
+    "*** YOUR CODE HERE ***"
+    closed = []
+    fringe = util.Queue()
+    currentState = problem.getStartState()
+    closed.append(currentState)
+    # If the currentState is the goal, return no action
+    if problem.isGoalState(currentState):
+        return []
+    # Add root's successors to the fringe
+    for child_state in problem.getSuccessors(currentState):
+        fringe.push((child_state, None))
+    
+    while (fringe.isEmpty() == False):
+        currentStateNode = fringe.pop() 
+        currentState = currentStateNode[0]  # state for expansion
+        
+        # If the currentState is the goal, return the path
+        if problem.isGoalState(currentState[0]):
+            return getPath(currentStateNode)
+        # Look for the soln along the currentState
+        if currentState[0] not in closed:
+            closed.append(currentState[0])
+            for child_state in problem.getSuccessors(currentState[0]):
+                fringe.push((child_state, currentStateNode))
+    return []
+    #util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -166,7 +189,32 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    closed = []
+    fringe = util.PriorityQueue()
+    currentState = problem.getStartState()
+    closed.append(currentState)
+    # If the currentState is the goal, return no action
+    if problem.isGoalState(currentState):
+        return []
+    # Add root's successors to the fringe
+    for child_state in problem.getSuccessors(currentState):
+        cost = child_state[2]
+        fringe.push((child_state, None, cost), cost + heuristic(child_state[0], problem))
+    
+    while (fringe.isEmpty() == False):
+        currentStateNode = fringe.pop() 
+        currentState = currentStateNode[0]  # state for expansion
+        stepCost = currentStateNode[2]      # accumulated cost up to the current state
+        # If the currentState is the goal, return the path
+        if problem.isGoalState(currentState[0]):
+            return getPath(currentStateNode)
+        # Look for the soln along the currentState
+        if currentState[0] not in closed:
+            closed.append(currentState[0])
+            for child_state in problem.getSuccessors(currentState[0]):
+                cost = stepCost+child_state[2]
+                fringe.push((child_state, currentStateNode, cost), cost + heuristic(child_state[0], problem))
+    return []
 
 
 # Abbreviations
