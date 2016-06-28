@@ -96,14 +96,9 @@ def depthFirstSearch(problem):
     currentState = problem.getStartState()
     fringe.push((currentState, None, 0))
     
-    def dfs(route):
-        if fringe.isEmpty():
-            return []
-        currentState = fringe.pop()  #(position, dir, cost)
-        dir = currentState[1]
+    def dfs(currentState, route):
+        
         print "currentState!!!!", currentState
-        if dir is not None:
-            route.append(dir)
 
         if problem.isGoalState(currentState[0]):
                 return route
@@ -111,10 +106,10 @@ def depthFirstSearch(problem):
             closed.append(currentState)
             for child_state in problem.getSuccessors(currentState[0]):
                 fringe.push(child_state)
-        
-        return dfs(route)
-    
-    rtn = dfs([])
+                dfs(child_state, route = route + [child_state[1]])
+
+        return []
+    rtn = dfs(fringe.pop(), [])
     print rtn
     return rtn
     
