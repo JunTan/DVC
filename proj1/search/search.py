@@ -129,28 +129,31 @@ def getPath(node):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    closed = []
-    fringe = util.PriorityQueue()
+    closed = []             
+    fringe = util.PriorityQueue()     
     currentState = problem.getStartState()
+    closed.append(currentState)
     # If the currentState is the goal, return no action
     if problem.isGoalState(currentState):
         return []
-    closed.append(currentState)
+    # Add root's successors to the fringe
     for child_state in problem.getSuccessors(currentState):
         cost = child_state[2]
-        fringe.push((child_state, None), cost)
-    while not fringe.isEmpty():
-        currentStateNode = fringe.pop()
-        currentState = currentStateNode[0]
-        stepCost = currentState[2]
-        
+        fringe.push((child_state, None, cost), cost)
+    
+    while (fringe.isEmpty() == False):
+        currentStateNode = fringe.pop() 
+        currentState = currentStateNode[0]  # state for expansion
+        stepCost = currentStateNode[2]      # accumulated cost up to the current state
+        # If the currentState is the goal, return the path
         if problem.isGoalState(currentState[0]):
             return getPath(currentStateNode)
+        # Look for the soln along the currentState
         if currentState[0] not in closed:
             closed.append(currentState[0])
             for child_state in problem.getSuccessors(currentState[0]):
-                cost = stepCost + child_state[2]
-                fringe.push((child_state, currentStateNode), cost)
+                cost = stepCost+child_state[2]
+                fringe.push((child_state, currentStateNode, cost), cost)
     return []
 
 def nullHeuristic(state, problem=None):
