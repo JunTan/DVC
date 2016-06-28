@@ -18,6 +18,7 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+import math
 
 class SearchProblem:
     """
@@ -87,7 +88,6 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-   
     closed = []
     fringe = util.Stack()
     currentState = problem.getStartState()
@@ -116,40 +116,42 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    closed = []
-    fringe = util.Queue()
-    currentState = problem.getStartState()
-    levelNum = 0 
-    fringe.push((levelNum,(currentState, None, 0)))
-    route = []    #[(level #, dir)]
-    while not fringe.isEmpty():
-        currentStateCap = fringe.pop()
-        currentState = currentStateCap[1]
-        currentStateLevel = currentStateCap[0]
-        if problem.isGoalState(currentState[0]):
-            rtn = [d for (l, d) in route if d is not None] + [currentState[1]]
-            print rtn
-            return rtn
-        if levelNum > currentStateLevel:
-            print "Change: levelNum, CurrentStateLevel", levelNum, currentStateLevel
-            route = [(l, d) for (l , d) in route if l < currentStateLevel]
-            print "route", route, "\n"
-        
-        if currentState[0] not in closed:
-            closed.append(currentState[0])
-            levelNum = currentStateLevel + 1
-            route += [(currentStateLevel, currentState[1])]
-            print "currentState, levelNum", currentState, levelNum
-            print "route!!", route
-            print "\n"
-            for child_state in problem.getSuccessors(currentState[0]):
-                fringe.push((levelNum, child_state))
-    return []
+    util.raiseNotDefined()
+
+def getPath(node):
+    path = []
+    nextNode = node
+    while nextNode is not None:
+        path = [nextNode[0][1]] + path
+        nextNode = nextNode[1]
+    return path
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    closed = []
+    fringe = util.PriorityQueue()
+    currentState = problem.getStartState()
+    # If the currentState is the goal, return no action
+    if problem.isGoalState(currentState):
+        return []
+    closed.append(currentState)
+    for child_state in problem.getSuccessors(currentState):
+        cost = child_state[2]
+        fringe.push((child_state, None), cost)
+    while not fringe.isEmpty():
+        currentStateNode = fringe.pop()
+        currentState = currentStateNode[0]
+        stepCost = currentState[2]
+        
+        if problem.isGoalState(currentState[0]):
+            return getPath(currentStateNode)
+        if currentState[0] not in closed:
+            closed.append(currentState[0])
+            for child_state in problem.getSuccessors(currentState[0]):
+                cost = stepCost + child_state[2]
+                fringe.push((child_state, currentStateNode), cost)
+    return []
 
 def nullHeuristic(state, problem=None):
     """
