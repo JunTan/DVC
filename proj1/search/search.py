@@ -140,14 +140,14 @@ def breadthFirstSearch(problem):
         
         # If the currentState is the goal, return the path
         if problem.isGoalState(currentState[0]):
-            return getPath(currentStateNode)
+            rtn = getPath(currentStateNode)
+            return rtn
         # Look for the soln along the currentState
         if currentState[0] not in closed:
             closed.append(currentState[0])
             for child_state in problem.getSuccessors(currentState[0]):
                 fringe.push((child_state, currentStateNode))
     return []
-    #util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
