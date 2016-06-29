@@ -288,7 +288,6 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.parentSuccesors = {None: self.startingPosition}
 
     def getStartState(self):
         """
@@ -378,7 +377,19 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    currentState = actualState = state[0]
+    visitedCorner = state[1]
+    unvisitedCorner = [c for c in corners if c not in visitedCorner]
+    heuristic = 0
+
+    while len(unvisitedCorner) > 0:
+        distance, corner = min([(util.manhattanDistance(currentState, c), c) for c in unvisitedCorner])
+        heuristic += distance
+        currentState = corner
+        unvisitedCorner.remove(corner)
+
+    #print "Heuristic: ", heuristic
+    return heuristic
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
