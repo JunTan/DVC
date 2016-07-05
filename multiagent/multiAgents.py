@@ -100,7 +100,10 @@ class ReflexAgent(Agent):
             sumGhostDistances += [ghostDistance]
             if newScaredTimes[i] == 0 and ghostDistance < 3:
                 ghostAround = True
-       
+        
+        if action == Directions.STOP:
+            additionalFactor -= 5
+
         if ghostAround:
             return additionalFactor + min(sumGhostDistances) + scoreDifference
         
@@ -110,7 +113,10 @@ class ReflexAgent(Agent):
                 foodDistance = 1/distance
             else:
                 foodDistance = 10
-
+        
+        if currentGameState.getNumFood() > successorGameState.getNumFood():
+            additionalFactor += 10
+            
         return foodDistance + scoreDifference + additionalFactor 
 
 def scoreEvaluationFunction(currentGameState):
