@@ -93,16 +93,17 @@ class ReflexAgent(Agent):
         foodDistance = 0
         newGhostPositions = successorGameState.getGhostPositions()
         ghostAround = False
+        scoreDifference = successorGameState.getScore() - currentGameState.getScore()
+        additionalFactor = 0
         for i in range(0, len(newGhostPositions)):
             ghostDistance = util.manhattanDistance(newGhostPositions[i], newPos)
+            sumGhostDistances += [ghostDistance]
             if newScaredTimes[i] == 0 and ghostDistance < 3:
                 ghostAround = True
-                sumGhostDistances += [ghostDistance]
-        
-        #print successorGameState.getScore()
-        #return successorGameState.getScore()
+       
         if ghostAround:
-            return min(sumGhostDistances)
+            return additionalFactor + min(sumGhostDistances) + scoreDifference
+        
         if len(foodList) > 0:
             distance, closestFood = min([(util.manhattanDistance(newPos, food), food) for food in foodList])
             if distance != 0:
@@ -110,7 +111,7 @@ class ReflexAgent(Agent):
             else:
                 foodDistance = 10
 
-        return foodDistance
+        return foodDistance + scoreDifference + additionalFactor 
 
 def scoreEvaluationFunction(currentGameState):
     """
