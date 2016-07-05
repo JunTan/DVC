@@ -75,48 +75,43 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        '''
-        print "action---"
-        print action
-        print "successorGameState---"
-        print successorGameState
-        print "newPos---"
-        print newPos
-        print "newFood---"
-        print newFood
-        print "newScaredTimes---"
-        print newScaredTimes
-        print "\n"
-        '''
+        currentGhostStates = currentGameState.getGhostStates()
+        currentScaredTimes = [ghostState.scaredTimer for ghostState in currentGhostStates]
+        newGhostPositions = successorGameState.getGhostPositions()
+        currentGhostPositions = currentGameState.getGhostPositions()
+
         sumGhostDistances = []
         foodList = newFood.asList()
         foodDistance = 0
-        newGhostPositions = successorGameState.getGhostPositions()
         ghostAround = False
         scoreDifference = successorGameState.getScore() - currentGameState.getScore()
         additionalFactor = 0
+
         for i in range(0, len(newGhostPositions)):
             ghostDistance = util.manhattanDistance(newGhostPositions[i], newPos)
             sumGhostDistances += [ghostDistance]
-            if newScaredTimes[i] == 0 and ghostDistance < 3:
+            if newScaredTimes[i] == 0 and ghostDistance < 4:
                 ghostAround = True
         
         if action == Directions.STOP:
             additionalFactor -= 5
-
+        
+        if currentScaredTimes.count(0) < newScaredTimes.count(0):
+            additionalFactor += 5
+        
         if ghostAround:
             return additionalFactor + min(sumGhostDistances) + scoreDifference
         
         if len(foodList) > 0:
             distance, closestFood = min([(util.manhattanDistance(newPos, food), food) for food in foodList])
             if distance != 0:
-                foodDistance = 1/distance
+                foodDistance = 0 - distance
             else:
                 foodDistance = 10
         
         if currentGameState.getNumFood() > successorGameState.getNumFood():
-            additionalFactor += 10
-            
+            additionalFactor += 100
+        
         return foodDistance + scoreDifference + additionalFactor 
 
 def scoreEvaluationFunction(currentGameState):
