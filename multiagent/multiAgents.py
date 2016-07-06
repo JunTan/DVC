@@ -343,7 +343,7 @@ def betterEvaluationFunction(currentGameState):
             ghostAround = True
     
     if ghostAround:
-        return min(sumGhostDistances) + score
+        return min(sumGhostDistances) + score - scaredTimes.count(0) - foodCount 
     
     if foodCount > 0:
         if len(foodList) > 0:
