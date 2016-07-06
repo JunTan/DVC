@@ -344,9 +344,15 @@ def betterEvaluationFunction(currentGameState):
     
     if ghostAround:
         return min(sumGhostDistances) + score
-    return score
-
-
+    
+    if foodCount > 0:
+        if len(foodList) > 0:
+            distance, closestFood = min([(util.manhattanDistance(currentPosition, food), food) for food in foodList])
+            if distance != 0:
+                foodDistance = - distance
+            else:
+                foodDistance = 10
+    return score + foodDistance
 
 # Abbreviation
 better = betterEvaluationFunction
