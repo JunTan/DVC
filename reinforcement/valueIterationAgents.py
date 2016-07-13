@@ -71,10 +71,7 @@ class ValueIterationAgent(ValueEstimationAgent):
                     actionValues = util.Counter()
                     actions = self.mdp.getPossibleActions(state)
                     for action in actions:
-                        nextStateProbs = self.mdp.getTransitionStatesAndProbs(state, action)
-                        actionValues[action] = sum([prob * (self.mdp.getReward(state, action, nextState) \
-                                                            + self.discount * self.values[nextState]) \
-                                                    for nextState, prob in nextStateProbs])
+                        actionValues[action] = self.computeQValueFromValues(state, action)
                         
                     maxAction = actionValues.argMax()
                     maxValue = actionValues[maxAction]
