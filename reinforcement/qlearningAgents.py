@@ -95,7 +95,7 @@ class QLearningAgent(ReinforcementAgent):
         legalActions = self.getLegalActions(state)
         action = None
         "*** YOUR CODE HERE ***"
-        if len(lengalActions) > 0:
+        if len(legalActions) > 0:
             if util.flipCoin(self.epsilon):
                 action = random.choice(legalActions)
             else:
@@ -178,15 +178,24 @@ class ApproximateQAgent(PacmanQAgent):
           where * is the dotProduct operator
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        weights = self.getWeights()
+        featureFunc = self.featExtractor.getFeatures(state, action)
+        return sum([weights[w] * featureFunc[w] for w in featureFunc])
+        
 
     def update(self, state, action, nextState, reward):
         """
            Should update your weights based on transition
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        diff = (reward + self.discount * self.computeValueFromQValues( nextState)) \
+                - self.getQValue(state, action)
+        weights = self.getWeights()
+        featureFunc = self.featExtractor.getFeatures(state, action)
+        
+        for key in featureFunc:
+            self.weights[key] += self.alpha * featureFunc[key] * diff 
+        
     def final(self, state):
         "Called at the end of each game."
         # call the super-class final method
