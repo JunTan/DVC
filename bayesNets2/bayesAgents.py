@@ -96,7 +96,23 @@ def constructBayesNet(gameState):
     variableDomainsDict = {}
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    for housePos in gameState.getPossibleHouses():
+        for obsPos in gameState.getHouseWalls(housePos):
+            obsVars.append(OBS_VAR_TEMPLATE % obsPos)
+
+    edges = [(X_POS_VAR, FOOD_HOUSE_VAR), (X_POS_VAR, GHOST_HOUSE_VAR), (Y_POS_VAR, FOOD_HOUSE_VAR), (Y_POS_VAR, GHOST_HOUSE_VAR)]
+
+    for obsVar in obsVars:
+        edges.append((FOOD_HOUSE_VAR, obsVar))
+        edges.append((GHOST_HOUSE_VAR, obsVar))
+
+
+    variableDomainsDict[X_POS_VAR] = X_POS_VALS
+    variableDomainsDict[Y_POS_VAR] = Y_POS_VALS
+    variableDomainsDict[FOOD_HOUSE_VAR] = HOUSE_VALS
+    variableDomainsDict[GHOST_HOUSE_VAR] = HOUSE_VALS
+    for obsVar in obsVars:
+        variableDomainsDict[obsVar] = OBS_VALS
 
     variables = [X_POS_VAR, Y_POS_VAR] + HOUSE_VARS + obsVars
     net = bn.constructEmptyBayesNet(variables, edges, variableDomainsDict)
@@ -127,7 +143,15 @@ def fillYCPT(bayesNet, gameState):
 
     yFactor = bn.Factor([Y_POS_VAR], [], bayesNet.variableDomainsDict())
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    from layout import PROB_BOTH_TOP
+    yFactor.setProbability({Y_POS_VAR: BOTH_TOP_VAL}, PROB_BOTH_TOP)
+    from layout import PROB_BOTH_BOTTOM
+    yFactor.setProbability({Y_POS_VAR: BOTH_BOTTOM_VAL}, PROB_BOTH_BOTTOM)
+    from layout import PROB_ONLY_LEFT_TOP
+    yFactor.setProbability({Y_POS_VAR: LEFT_TOP_VAL}, PROB_ONLY_LEFT_TOP)
+    from layout import PROB_ONLY_LEFT_BOTTOM
+    yFactor.setProbability({Y_POS_VAR: LEFT_BOTTOM_VAL}, PROB_ONLY_LEFT_BOTTOM)
+
     bayesNet.setCPT(Y_POS_VAR, yFactor)
 
 def fillHouseCPT(bayesNet, gameState):
@@ -192,7 +216,49 @@ def fillObsCPT(bayesNet, gameState):
     bottomLeftPos, topLeftPos, bottomRightPos, topRightPos = gameState.getPossibleHouses()
 
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    def getValFromPos(pos):
+        width = gameState.data.layout.width
+        height = gameState.data.layout.height
+        x = pos[0]
+        y = pos[1]
+        if x < width/2.0 and y < height/2.0:
+            return BOTTOM_LEFT_VAL
+        elif x < width/2.0 and y > height/2.0:
+            return TOP_LEFT_VAL
+        elif x > width/2.0 and y < height/2.0:
+            return BOTTOM_RIGHT_VAL
+        elif x > width/2.0 and y > height/2.0:
+            return TOP_RIGHT_VAL
+        return None
+
+    for housePos in gameState.getPossibleHouses():
+        for wallPos in gameState.getHouseWalls(housePos):
+            wallVar = OBS_VAR_TEMPLATE % wallPos
+            wallFactor = bn.Factor([wallVar], [FOOD_HOUSE_VAR, GHOST_HOUSE_VAR], bayesNet.variableDomainsDict())
+            for assignmentDict in wallFactor.getAllPossibleAssignmentDicts():
+                probBlue = 0
+                probRed = 0
+                probNone = 0
+                if assignmentDict[FOOD_HOUSE_VAR] == getValFromPos(wallPos):
+                    probRed = PROB_FOOD_RED
+                    probBlue = 1 - PROB_FOOD_RED
+                    probNone = 0
+                elif assignmentDict[GHOST_HOUSE_VAR] == getValFromPos(wallPos):
+                    probRed = PROB_GHOST_RED
+                    probBlue = 1 - PROB_GHOST_RED
+                    probNone = 0
+                else:
+                    probRed = 0
+                    probBlue = 0
+                    probNone = 1
+
+                if assignmentDict[wallVar] == BLUE_OBS_VAL:
+                    wallFactor.setProbability(assignmentDict, probBlue)
+                elif assignmentDict[wallVar] ==RED_OBS_VAL:
+                    wallFactor.setProbability(assignmentDict, probRed)
+                else:
+                    wallFactor.setProbability(assignmentDict, probNone)
+            bayesNet.setCPT(wallVar, wallFactor)
 
 def getMostLikelyFoodHousePosition(evidence, bayesNet, eliminationOrder):
     """
