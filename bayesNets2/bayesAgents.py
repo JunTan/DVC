@@ -254,7 +254,7 @@ def fillObsCPT(bayesNet, gameState):
 
                 if assignmentDict[wallVar] == BLUE_OBS_VAL:
                     wallFactor.setProbability(assignmentDict, probBlue)
-                elif assignmentDict[wallVar] ==RED_OBS_VAL:
+                elif assignmentDict[wallVar] == RED_OBS_VAL:
                     wallFactor.setProbability(assignmentDict, probRed)
                 else:
                     wallFactor.setProbability(assignmentDict, probNone)
@@ -375,8 +375,21 @@ class VPIAgent(BayesAgent):
         rightExpectedValue = 0
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        factorCPT = inference.inferenceByVariableElimination(self.bayesNet, [FOOD_HOUSE_VAR, GHOST_HOUSE_VAR], evidence, eliminationOrder)
+        foodTopLeft = {}
+        foodTopLeft.update(evidence)
+        foodTopLeft[FOOD_HOUSE_VAR] = TOP_LEFT_VAL
+        foodTopLeft[GHOST_HOUSE_VAR] = TOP_RIGHT_VAL
 
+        foodTopRight = {}
+        foodTopRight.update(evidence)
+        foodTopRight[FOOD_HOUSE_VAR] = TOP_RIGHT_VAL
+        foodTopRight[GHOST_HOUSE_VAR] = TOP_LEFT_VAL
+        
+        leftExpectedValue = factorCPT.getProbability(foodTopLeft) * WON_GAME_REWARD \
+                            + factorCPT.getProbability(foodTopRight) * GHOST_COLLISION_REWARD
+        rightExpectedValue = factorCPT.getProbability(foodTopLeft) * GHOST_COLLISION_REWARD \
+                             + factorCPT.getProbability(foodTopRight) * WON_GAME_REWARD
         return leftExpectedValue, rightExpectedValue
 
     def getExplorationProbsAndOutcomes(self, evidence):
@@ -441,7 +454,9 @@ class VPIAgent(BayesAgent):
         expectedValue = 0
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        fullEvidence = self.getExplorationProbsAndOutcomes(evidence)
+        for prob, explorationEvidence in fullEvidence:
+            expectedValue += prob * max(self.computeEnterValues(explorationEvidence, enterEliminationOrder))
 
         return expectedValue
 
