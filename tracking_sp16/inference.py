@@ -287,6 +287,9 @@ class ExactInference(InferenceModule):
         position is known.
         """
         "*** YOUR CODE HERE ***"
+        for ghostPosition in self.allPositions:
+            self.beliefs[ghostPosition] = self.beliefs[ghostPosition] \
+                                          * self.getObservationProb(observation, gameState.getPacmanPosition(), ghostPosition, gameState.getJailPosition())
         self.beliefs.normalize()
 
     def elapseTime(self, gameState):
