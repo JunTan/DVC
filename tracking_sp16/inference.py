@@ -75,6 +75,11 @@ class DiscreteDistribution(dict):
         {}
         """
         "*** YOUR CODE HERE ***"
+        values = self.values()
+        if len(values) != 0 or all(i != 0 for i in values):
+            sumValues = self.total()
+            for key in self.keys():
+                self[key] = self[key]/sumValues
 
     def sample(self):
         """
@@ -98,6 +103,14 @@ class DiscreteDistribution(dict):
         0.0
         """
         "*** YOUR CODE HERE ***"
+        total = self.total()
+        r = random.uniform(0, total)
+        upto = 0
+        for key in self.keys():
+            w = self[key]
+            if upto + w >= r:
+                return key
+            upto += w
 
 
 class InferenceModule:
