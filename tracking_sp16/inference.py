@@ -295,7 +295,6 @@ class ExactInference(InferenceModule):
         current position. However, this is not a problem, as Pacman's current
         position is known.
         """
-        self.beliefs.normalize()
         "*** YOUR CODE HERE ***"
         for ghostPosition in self.allPositions:
             self.beliefs[ghostPosition] = self.beliefs[ghostPosition] \
@@ -312,6 +311,20 @@ class ExactInference(InferenceModule):
         current position is known.
         """
         "*** YOUR CODE HERE ***"
+        self.beliefs.normalize()
+        newBelief = DiscreteDistribution()
+        newPosDist = DiscreteDistribution()
+        for oldPos in self.allPositions:
+            newPosDist = self.getPositionDistribution(gameState, oldPos)           
+            for key in newPosDist:
+                newPosDist[key] = newPosDist[key] * self.beliefs[oldPos]
+                if key in newBelief:
+                    newBelief[key] = newBelief[key] + newPosDist[key]
+                else:
+                    newBelief[key] = newPosDist[key]
+
+        self.beliefs = newBelief
+        self.beliefs.normalize()
 
     def getBeliefDistribution(self):
         return self.beliefs
@@ -352,6 +365,18 @@ class ParticleFilter(InferenceModule):
         the DiscreteDistribution may be useful.
         """
         "*** YOUR CODE HERE ***"
+        weight = DiscreteDistribution()
+        for particle in self.particles:
+            obervedProb = self.getObservationProb(observation, gameState.getPacmanPosition(), \
+                                                  particle, self.getJailPosition())
+            if particle in weight:
+                weight[particle] += obervedProb
+            else:
+                weight[particle] = obervedProb
+        if weight.total() != 0:
+            self.particles = [weight.sample() for i in range(self.numParticles)]
+        else:
+            self.initializeUniformly(gameState)
 
     def elapseTime(self, gameState):
         """
