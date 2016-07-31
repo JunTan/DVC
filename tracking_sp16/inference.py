@@ -382,9 +382,7 @@ class ParticleFilter(InferenceModule):
             
         weight.normalize()
         
-        #print "self.beliefs.total() ----", self.beliefs.total()
         if weight.total() == 0.0:
-            #print "initialize 0"
             self.initializeUniformly(gameState)
         else:
             self.particles = [weight.sample() for i in range(self.numParticles)]
@@ -437,9 +435,11 @@ class JointParticleFilter(ParticleFilter):
         "*** YOUR CODE HERE ***"
         number = self.numParticles
         position = self.legalPositions
-        for elem in itertools.product(position, position):
-            self.particles.append(elem)
-        random.shuffle(self.particles)
+        combination = list(itertools.product(position,position))
+        random.shuffle(combination)
+        for i in range(number):
+            self.particles.append(tuple(combination[i % len(combination)]))
+        
 
     def addGhostAgent(self, agent):
         """
@@ -472,6 +472,27 @@ class JointParticleFilter(ParticleFilter):
         the DiscreteDistribution may be useful.
         """
         "*** YOUR CODE HERE ***"
+        weight = DiscreteDistribution()
+
+        for particle in self.particles:
+            obervedProb = 1
+            for i in range(self.numGhosts):
+                obervedProb *= (self.getObservationProb(observation, gameState.getPacmanPosition(), \
+                                                      particle[0], self.getJailPosition(i)) + \
+                                self.getObservationProb(observation, gameState.getPacmanPosition(), \
+                                                      particle[1], self.getJailPosition(i)))
+                if particle in weight:
+                    weight[particle] = weight[particle] + obervedProb
+                else:
+                    weight[particle] = obervedProb
+            
+        weight.normalize()
+        
+        if weight.total() == 0.0:
+            self.initializeUniformly(gameState)
+        else:
+            self.particles = [weight.sample() for i in range(self.numParticles)]
+
 
     def elapseTime(self, gameState):
         """
