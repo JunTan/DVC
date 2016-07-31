@@ -435,18 +435,11 @@ class JointParticleFilter(ParticleFilter):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
-        self.beliefs = DiscreteDistribution()
-        for p in self.legalPositions:
-            self.beliefs[p] = 1.0
-        self.beliefs.normalize()
-
-
         number = self.numParticles
         position = self.legalPositions
-        for i in range(0,len(position)):
-            for j in range(0,number/len(position)):
-                self.particles.append(position[i])
-        return self.particles
+        for elem in itertools.product(position, position):
+            self.particles.append(elem)
+        random.shuffle(self.particles)
 
     def addGhostAgent(self, agent):
         """
