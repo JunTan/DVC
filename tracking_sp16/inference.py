@@ -351,6 +351,11 @@ class ParticleFilter(InferenceModule):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
+        number = self.numParticles
+        position = self.legalPositions
+        for i in range(number):
+            self.particles.append(position[i % len(position)])
+        return self.particles
 
     def observeUpdate(self, observation, gameState):
         """
@@ -366,17 +371,24 @@ class ParticleFilter(InferenceModule):
         """
         "*** YOUR CODE HERE ***"
         weight = DiscreteDistribution()
+
         for particle in self.particles:
             obervedProb = self.getObservationProb(observation, gameState.getPacmanPosition(), \
                                                   particle, self.getJailPosition())
             if particle in weight:
-                weight[particle] += obervedProb
+                weight[particle] = weight[particle] + obervedProb
             else:
                 weight[particle] = obervedProb
-        if weight.total() != 0:
-            self.particles = [weight.sample() for i in range(self.numParticles)]
-        else:
+            
+        weight.normalize()
+        
+        #print "self.beliefs.total() ----", self.beliefs.total()
+        if weight.total() == 0.0:
+            #print "initialize 0"
             self.initializeUniformly(gameState)
+        else:
+            self.particles = [weight.sample() for i in range(self.numParticles)]
+        
 
     def elapseTime(self, gameState):
         """
@@ -392,7 +404,11 @@ class ParticleFilter(InferenceModule):
         essentially converts a list of particles into a belief distribution.
         """
         "*** YOUR CODE HERE ***"
-
+        weight = DiscreteDistribution()
+        for particle in self.particles:
+            weight[particle] += 1
+        weight.normalize()
+        return weight
 
 class JointParticleFilter(ParticleFilter):
     """
@@ -419,6 +435,18 @@ class JointParticleFilter(ParticleFilter):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
+        self.beliefs = DiscreteDistribution()
+        for p in self.legalPositions:
+            self.beliefs[p] = 1.0
+        self.beliefs.normalize()
+
+
+        number = self.numParticles
+        position = self.legalPositions
+        for i in range(0,len(position)):
+            for j in range(0,number/len(position)):
+                self.particles.append(position[i])
+        return self.particles
 
     def addGhostAgent(self, agent):
         """
