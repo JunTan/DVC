@@ -473,21 +473,20 @@ class JointParticleFilter(ParticleFilter):
         """
         "*** YOUR CODE HERE ***"
         weight = DiscreteDistribution()
-
         for particle in self.particles:
-            obervedProb = 1
+            observedProb = 1
+            particleList = list(particle)
+            
             for i in range(self.numGhosts):
-                obervedProb *= (self.getObservationProb(observation, gameState.getPacmanPosition(), \
-                                                      particle[0], self.getJailPosition(i)) + \
-                                self.getObservationProb(observation, gameState.getPacmanPosition(), \
-                                                      particle[1], self.getJailPosition(i)))
-                if particle in weight:
-                    weight[particle] = weight[particle] + obervedProb
-                else:
-                    weight[particle] = obervedProb
+                observedProb *= self.getObservationProb(observation[i], gameState.getPacmanPosition(), \
+                                                particleList[i], self.getJailPosition(i))
+               
+            if particle in weight:
+                weight[particle] = weight[particle] + observedProb
+            else:
+                weight[particle] = observedProb
             
         weight.normalize()
-        
         if weight.total() == 0.0:
             self.initializeUniformly(gameState)
         else:
