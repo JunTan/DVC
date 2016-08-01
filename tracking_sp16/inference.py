@@ -394,6 +394,24 @@ class ParticleFilter(InferenceModule):
         gameState.
         """
         "*** YOUR CODE HERE ***"
+        weight = self.getBeliefDistribution()
+        newWeight = DiscreteDistribution()
+
+        for particle in weight:
+            newPosDist = self.getPositionDistribution(gameState, particle)
+            for key in newPosDist:
+                newPosDist[key] = newPosDist[key] * weight[particle]
+                if key in newWeight:
+                    newWeight[key] = newWeight[key] + newPosDist[key]
+                else :
+                    newWeight[key] = newPosDist[key]
+
+        newWeight.normalize()
+
+        if newWeight.total() == 0.0:
+            self.initializeUniformly(gameState)
+        else:
+            self.particles = [newWeight.sample() for i in range(self.numParticles)]
 
     def getBeliefDistribution(self):
         """
@@ -504,6 +522,9 @@ class JointParticleFilter(ParticleFilter):
 
             # now loop through and update each entry in newParticle...
             "*** YOUR CODE HERE ***"
+            for i in range(self.numGhosts):
+                newPosDist = self.getPositionDistribution(gameState, oldParticle, i, self.ghostAgents[i])
+                newParticle[i] = newPosDist.sample()
 
             """*** END YOUR CODE HERE ***"""
             newParticles.append(tuple(newParticle))
