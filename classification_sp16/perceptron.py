@@ -88,8 +88,6 @@ class PerceptronClassifier(object):
                 if currentCenter != actualCenter:
                     self.weights[actualCenter] = self.weights[actualCenter] + datum
                     self.weights[currentCenter] = self.weights[currentCenter] - datum
-                
-                
 
     def classify(self, input_datum_or_data):
         """
@@ -131,7 +129,7 @@ class PerceptronClassifier(object):
         best100Features = []
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        best100Features = self.weights[label].sortedKeys()[:100]
 
         return best100Features
 
