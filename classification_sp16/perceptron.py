@@ -85,7 +85,7 @@ class PerceptronClassifier(object):
                 
                 actualCenter = label_train_data[i]
                 # update weights if guess is wrong
-                if currentCenters != actualCenter:
+                if currentCenter != actualCenter:
                     self.weights[actualCenter] = self.weights[actualCenter] + datum
                     self.weights[currentCenter] = self.weights[currentCenter] - datum
                 
