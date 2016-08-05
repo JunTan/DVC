@@ -366,6 +366,8 @@ class MinibatchStochasticGradientDescentSolver(GradientDescentSolver):
         val_data = [input_val_data, target_val_data]
         # You may want to initialize some variables that are shared across iterations
         "*** YOUR CODE HERE ***"
+        train_data_generator = MinibatchIndefinitelyGenerator(train_data, self.batch_size, self.shuffle)
+        val_data_generator = MinibatchIndefinitelyGenerator(val_data, self.batch_size, self.shuffle)
         loss_tensor = self.get_loss_tensor(model.prediction_tensor, target_ph, model.get_param_vars(regularizable=True))
         updates = self.get_updates(loss_tensor, model.get_param_vars(trainable=True))
         update_ops = [tf.assign(old_var, new_var_or_tensor) for (old_var, new_var_or_tensor) in updates]
@@ -373,7 +375,10 @@ class MinibatchStochasticGradientDescentSolver(GradientDescentSolver):
         val_losses = []
         for iter_ in range(self.iterations):
             "*** YOUR CODE HERE ***"
-            util.raiseNotDefined()
+            train = train_data_generator.next()
+            val = val_data_generator.next()
+            train_loss = session.run([loss_tensor] + update_ops, feed_dict = {model.input_ph: train[0], target_ph: train[1]})[0]
+            val_loss = session.run(loss_tensor, feed_dict = {model.input_ph: val[0], target_ph: val[1]})
             # train_loss should be the loss of this iteration using only the training data that was used for the updates
             # val_loss should be the loss of this iteration using the same amount of data used for the updates, but using the validation data instead
             train_losses.append(train_loss)
