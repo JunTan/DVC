@@ -180,7 +180,9 @@ class GradientDescentSolver(Solver):
         val_losses = []
         for iter_ in range(self.iterations):
             "*** YOUR CODE HERE ***"
-            util.raiseNotDefined()
+            train_loss = session.run([loss_tensor] + update_ops, feed_dict = {model.input_ph: input_train_data, target_ph:target_train_data})[0]
+            val_loss = session.run(loss_tensor, feed_dict = {model.input_ph: input_val_data, target_ph:target_val_data})
+            
             # train_loss should be the loss of this iteration using all of the training data
             # val_loss should be the loss of this iteration using all of the validation data
             train_losses.append(train_loss)
